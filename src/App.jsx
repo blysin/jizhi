@@ -8,6 +8,7 @@ import Verses from './components/Verses';
 import ConfigMenu from './components/ConfigMenu';
 import SearchInput from './components/SearchInput';
 import ColorName from './components/ColorName';
+import Navigation from './components/Navigation';
 import { saveBackground, insertFont, fetchAndSetFont, pickColor, isDarkModeEnabled } from './utils';
 import Storager from './utils/storager';
 import { load } from './utils/jinrishici';
@@ -230,6 +231,7 @@ class App extends Component {
     return selected ? (
       <div className="App" tabIndex="-1" onKeyDown={this.handleKeyDown}>
         <GlobalStyle />
+        <Navigation isDarkMode={isDarkMode} />
         {selected === WAVES && (
           <ColorName
             key={waveColor.name}
@@ -297,6 +299,16 @@ class App extends Component {
             isDarkMode={isDarkMode}
           />
         )}
+        <div style={{
+          position: 'absolute',
+          bottom: '10px',
+          right: '10px',
+          color: isDarkMode ? '#fff' : '#000',
+          fontSize: '12px',
+          opacity: 0.6
+        }}>
+          作者：戴少坤
+        </div>
       </div>
     ) : null;
   }
