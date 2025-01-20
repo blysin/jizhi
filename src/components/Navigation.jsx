@@ -14,9 +14,29 @@ class Navigation extends Component {
       showAddForm: false,
       contextMenuPosition: { x: 0, y: 0 },
       showEditMode: false,
+      hoveredItem: null,
     };
     this.nameInputRef = React.createRef();
+    this.hoverTimers = {};
   }
+
+  componentWillUnmount() {
+    // 清除所有定时器
+    Object.values(this.hoverTimers).forEach(timer => clearTimeout(timer));
+  }
+
+  handleMouseEnter = (index) => {
+    this.hoverTimers[index] = setTimeout(() => {
+      this.setState({ hoveredItem: index });
+    }, 1000);
+  };
+
+  handleMouseLeave = (index) => {
+    clearTimeout(this.hoverTimers[index]);
+    this.hoverTimers[index] = setTimeout(() => {
+      this.setState({ hoveredItem: null });
+    }, 1000);
+  };
 
   componentDidMount() {
     Storager.get(['links'], (res) => {
@@ -40,6 +60,7 @@ class Navigation extends Component {
         name: '',
         url: '',
         showAddForm: false,
+        hoveredItem: null,
       },
       () => {
         Storager.set({ links: newLinks });
@@ -83,7 +104,12 @@ class Navigation extends Component {
         <div className={`navigation ${isDarkMode ? 'dark' : ''}`}>
           <ul className="navigation-list">
             {links.map((link, index) => (
-              <li key={index} className="navigation-item">
+              <li
+                key={index}
+                className="navigation-item"
+                onMouseEnter={() => this.handleMouseEnter(index)}
+                onMouseLeave={() => this.handleMouseLeave(index)}
+              >
                 <a
                   href={link.url}
                   target="_blank"
@@ -93,11 +119,12 @@ class Navigation extends Component {
                   {link.name}
                 </a>
 
-                {showAddForm && (
-                  <span className="delete-icon" onClick={() => this.handleRemoveLink(index)}>
-                    <FaTimes  />
-                  </span>
-                )}
+                <span
+                  className={`delete-icon ${this.state.hoveredItem === index ? 'visible' : ''}`}
+                  onClick={() => this.handleRemoveLink(index)}
+                >
+                  <FaTimes  />
+                </span>
               </li>
             ))}
           </ul>
