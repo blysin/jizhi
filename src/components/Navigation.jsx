@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Storager from '../utils/storager';
 import './Navigation.css';
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaPlus,  FaTimes  } from 'react-icons/fa';
 
 class Navigation extends Component {
   constructor(props) {
@@ -15,6 +15,7 @@ class Navigation extends Component {
       contextMenuPosition: { x: 0, y: 0 },
       showEditMode: false,
     };
+    this.nameInputRef = React.createRef();
   }
 
   componentDidMount() {
@@ -63,7 +64,14 @@ class Navigation extends Component {
   };
 
   toggleAddForm = () => {
-    this.setState((prevState) => ({ showAddForm: !prevState.showAddForm }));
+    this.setState(
+      (prevState) => ({ showAddForm: !prevState.showAddForm }),
+      () => {
+        if (this.state.showAddForm && this.nameInputRef.current) {
+          this.nameInputRef.current.focus();
+        }
+      }
+    );
   };
 
   render() {
@@ -87,7 +95,7 @@ class Navigation extends Component {
 
                 {showAddForm && (
                   <span className="delete-icon" onClick={() => this.handleRemoveLink(index)}>
-                    <FaTrash />
+                    <FaTimes  />
                   </span>
                 )}
               </li>
@@ -119,6 +127,7 @@ class Navigation extends Component {
               onChange={this.handleInputChange}
               placeholder="网站名称"
               className="add-input"
+              ref={this.nameInputRef}
             />
             <input
               type="url"
