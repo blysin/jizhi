@@ -299,16 +299,7 @@ class App extends Component {
             isDarkMode={isDarkMode}
           />
         )}
-        <div style={{
-          position: 'absolute',
-          bottom: '10px',
-          right: '10px',
-          color: isDarkMode ? '#fff' : '#000',
-          fontSize: '12px',
-          opacity: 0.6
-        }}>
-          作者：戴少坤
-        </div>
+        
       </div>
     ) : null;
   }
