@@ -256,3 +256,60 @@
 .dark .delete-button:hover {
   background-color: #ff3b30;
 }
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.title-input {
+  font-size: 24px;
+  font-weight: bold;
+  border: 1px solid #ccc;
+  padding: 2px 5px;
+  width: 100%;
+  max-width: 300px;
+  background: transparent;
+  color: inherit;
+}
+
+.dark .title-input {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.add-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50%;
+  height: 12px;
+  padding: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.01);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-item svg {
+  opacity: 0.1;
+  transition: opacity 0.2s ease;
+}
+
+.add-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.add-item:hover svg {
+  opacity: 1;
+}
+
+.dark .add-item {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .add-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
