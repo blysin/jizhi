@@ -16,6 +16,9 @@ import { WAVES } from '../../constants/appConstants';
 import Legal from './Legal';
 import FontStatement from './FontStatement';
 import SaveBgMenuItem from './SaveBgMenuItem';
+import NavigationTabContent from './TabContents/NavigationTabContent';
+import { FaTimes } from 'react-icons/fa';
+import Storager from '../../utils/storager';
 
 const SwitchWrapper = styled.div`
   display: flex;
@@ -50,6 +53,7 @@ const MenuContent = (props) => {
     onFontTypeChange,
     isFontLoading,
     waveColor,
+    onLinksChange,
   } = props;
 
   const bgOptions = [
@@ -218,6 +222,10 @@ const MenuContent = (props) => {
           </SegmentedControlWrapper>
         </Menu.Group>
       ),
+    },
+    {
+      tabName: '导航',
+      tabContent: <NavigationTabContent onLinksChange={onLinksChange} />
     },
     { tabName: '关于', tabContent: <Legal waveColor={waveColor} selected={selected} /> },
   ];

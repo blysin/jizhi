@@ -43,6 +43,7 @@ class App extends Component {
       focused: false,
       fontName: DEFAULT_FONT,
       waveColor: pickColor(false),
+      links: [],
     };
   }
 
@@ -74,6 +75,7 @@ class App extends Component {
         'fontName',
         'fonts',
         'colorMode',
+        'links',
       ],
       (res) => {
         if (res.fonts && res.fontName === res.fonts.fontName) {
@@ -93,6 +95,7 @@ class App extends Component {
           fontName: res.fontName || DEFAULT_FONT,
           isDarkMode: res.colorMode === 'os' ? isDarkModeEnabled() : res.colorMode === 'dark',
           waveColor: pickColor(!!this.state.isDarkMode),
+          links: res.links || [],
         });
       }
     );
@@ -201,6 +204,10 @@ class App extends Component {
   handleEngineOptionChange = (engineOption) =>
     this.setState({ engineOption }, () => Storager.set({ engineOption }));
 
+  handleLinksChange = (links) => {
+    this.setState({ links }, () => Storager.set({ links }));
+  };
+
   handleChange = ({ target: { value } }) => this.setState({ value });
 
   handleFocus = () => this.setState({ focused: true });
@@ -225,13 +232,19 @@ class App extends Component {
       waveColor,
       isFontLoading,
       colorMode,
+      links,
     } = this.state;
     const sketches = { blobs, waves };
 
     return selected ? (
       <div className="App" tabIndex="-1" onKeyDown={this.handleKeyDown}>
         <GlobalStyle />
-        <Navigation isDarkMode={isDarkMode} />
+        <Navigation
+          isDarkMode={isDarkMode}
+          links={links}
+          setLinks={this.handleLinksChange}
+          onLinksChange={this.handleLinksChange}
+        />
         {selected === WAVES && (
           <ColorName
             key={waveColor.name}
@@ -279,6 +292,7 @@ class App extends Component {
           onFontTypeChange={this.handleFontTypeChange}
           isFontLoading={isFontLoading}
           waveColor={waveColor}
+          onLinksChange={this.handleLinksChange}
         >
           {errMessage && (
             <div style={{ height: 30 }}>
