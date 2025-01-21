@@ -133,7 +133,19 @@ class Navigation extends Component {
     const newColumns = [...columns];
     newColumns[columnIndex].links.splice(itemIndex, 1);
     
-    this.setState({ columns: newColumns });
+    // 如果删除后当前列的links为空，则删除整个列
+    if (newColumns[columnIndex].links.length === 0) {
+      newColumns.splice(columnIndex, 1);
+      // 如果删除了当前激活的列，将activeColumnIndex设置为0
+      const newActiveColumnIndex = columnIndex === this.state.activeColumnIndex ? 0 : this.state.activeColumnIndex;
+      this.setState({
+        columns: newColumns,
+        activeColumnIndex: newActiveColumnIndex
+      });
+    } else {
+      this.setState({ columns: newColumns });
+    }
+    
     Storager.set({ navigationColumns: newColumns });
     this.props.onLinksChange && this.props.onLinksChange(newColumns);
   };
