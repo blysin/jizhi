@@ -1,56 +1,9 @@
 import React, { Component } from 'react';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import './Navigation.css';
 import { FaTimes, FaPlus } from 'react-icons/fa';
 import PropTypes from 'prop-types';
 import Storager from '../utils/storager';
 import { Dialog, TextInput, Button, Pane } from 'evergreen-ui';
-
-// 可拖拽的列表项
-const SortableItem = SortableElement(({value, columnIndex, itemIndex, onMouseEnter, onMouseLeave, hoveredItems, onRemoveLink}) => (
-  <li
-    className="navigation-item"
-    onMouseEnter={() => onMouseEnter(columnIndex, itemIndex)}
-    onMouseLeave={() => onMouseLeave(columnIndex, itemIndex)}
-  >
-    <a
-      href={value.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="navigation-link"
-    >
-      {value.name}
-    </a>
-
-    <span
-      className={`delete-icon ${hoveredItems[columnIndex] && hoveredItems[columnIndex][itemIndex] ? 'visible' : ''}`}
-      onClick={() => onRemoveLink(columnIndex, itemIndex)}
-    >
-      <FaTimes />
-    </span>
-  </li>
-));
-
-// 可拖拽的列表容器
-const SortableList = SortableContainer(({items, columnIndex, onMouseEnter, onMouseLeave, hoveredItems, onRemoveLink}) => {
-  return (
-    <ul className="navigation-list">
-      {items.map((value, index) => (
-        <SortableItem
-          key={`item-${index}`}
-          index={index}
-          value={value}
-          columnIndex={columnIndex}
-          itemIndex={index}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
-          hoveredItems={hoveredItems}
-          onRemoveLink={onRemoveLink}
-        />
-      ))}
-    </ul>
-  );
-});
 
 class Navigation extends Component {
   constructor(props) {
@@ -228,22 +181,6 @@ class Navigation extends Component {
     }
   };
 
-  onSortEnd = ({oldIndex, newIndex}, {columnIndex}) => {
-    const { columns } = this.state;
-    const newColumns = [...columns];
-    
-    // 重新排序当前列的links
-    newColumns[columnIndex].links = arrayMove(
-      columns[columnIndex].links,
-      oldIndex,
-      newIndex
-    );
-
-    this.setState({ columns: newColumns });
-    Storager.set({ navigationColumns: newColumns });
-    this.props.onLinksChange && this.props.onLinksChange(newColumns);
-  };
-
   render() {
     const { isDarkMode } = this.props;
     const { columns, activeColumnIndex } = this.state;
@@ -284,17 +221,32 @@ class Navigation extends Component {
                     />
                   </div>
                 </div>
-                <SortableList
-                  items={column.links}
-                  onSortEnd={(sortInfo) => this.onSortEnd(sortInfo, {columnIndex: index})}
-                  columnIndex={index}
-                  lockAxis="y"
-                  distance={5}
-                  onMouseEnter={this.handleMouseEnter}
-                  onMouseLeave={this.handleMouseLeave}
-                  hoveredItems={this.state.hoveredItems}
-                  onRemoveLink={this.handleRemoveLink}
-                />
+                <ul className="navigation-list">
+                  {column.links.map((link, itemIndex) => (
+                    <li
+                      key={itemIndex}
+                      className="navigation-item"
+                      onMouseEnter={() => this.handleMouseEnter(index, itemIndex)}
+                      onMouseLeave={() => this.handleMouseLeave(index, itemIndex)}
+                    >
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="navigation-link"
+                      >
+                        {link.name}
+                      </a>
+
+                      <span
+                        className={`delete-icon ${this.state.hoveredItems[index] && this.state.hoveredItems[index][itemIndex] ? 'visible' : ''}`}
+                        onClick={() => this.handleRemoveLink(index, itemIndex)}
+                      >
+                        <FaTimes />
+                      </span>
+                    </li>
+                  ))}
+                </ul>
                 <div className="add-item" onClick={this.handleAddClick}>
                   <FaPlus />
                 </div>

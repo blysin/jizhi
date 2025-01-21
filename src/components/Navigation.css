@@ -34,6 +34,25 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: transform 0.2s ease;
+}
+
+/* 拖拽时的样式 */
+[data-rbd-draggable-context-id] {
+  transform: none !important;
+}
+
+/* 正在拖拽的项 */
+[data-rbd-drag-handle-context-id] {
+  cursor: grabbing;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+}
+
+/* 拖拽占位符 */
+[data-rbd-placeholder-context-id] {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
 }
 
 .delete-icon {
