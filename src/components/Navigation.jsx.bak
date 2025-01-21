@@ -1,18 +1,9 @@
 import React, { Component } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import './Navigation.css';
 import { FaTimes, FaPlus } from 'react-icons/fa';
 import PropTypes from 'prop-types';
 import Storager from '../utils/storager';
 import { Dialog, TextInput, Button, Pane } from 'evergreen-ui';
-
-// 重新排序函数
-const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-  return result;
-};
 
 class Navigation extends Component {
   constructor(props) {
@@ -190,29 +181,6 @@ class Navigation extends Component {
     }
   };
 
-  onDragEnd = (result) => {
-    const { source, destination } = result;
-
-    // 如果没有拖拽到有效区域
-    if (!destination) {
-      return;
-    }
-
-    const { activeColumnIndex, columns } = this.state;
-    const newColumns = [...columns];
-    
-    // 重新排序当前列的links
-    newColumns[activeColumnIndex].links = reorder(
-      columns[activeColumnIndex].links,
-      source.index,
-      destination.index
-    );
-
-    this.setState({ columns: newColumns });
-    Storager.set({ navigationColumns: newColumns });
-    this.props.onLinksChange && this.props.onLinksChange(newColumns);
-  };
-
   render() {
     const { isDarkMode } = this.props;
     const { columns, activeColumnIndex } = this.state;
@@ -253,53 +221,32 @@ class Navigation extends Component {
                     />
                   </div>
                 </div>
-                <DragDropContext onDragEnd={this.onDragEnd}>
-                  <Droppable droppableId={`droppable-${index}`}>
-                    {(provided) => (
-                      <ul
-                        className="navigation-list"
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
+                <ul className="navigation-list">
+                  {column.links.map((link, itemIndex) => (
+                    <li
+                      key={itemIndex}
+                      className="navigation-item"
+                      onMouseEnter={() => this.handleMouseEnter(index, itemIndex)}
+                      onMouseLeave={() => this.handleMouseLeave(index, itemIndex)}
+                    >
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="navigation-link"
                       >
-                        {column.links.map((link, itemIndex) => (
-                          <Draggable
-                            key={itemIndex}
-                            draggableId={`draggable-${index}-${itemIndex}`}
-                            index={itemIndex}
-                          >
-                            {(provided) => (
-                              <li
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className="navigation-item"
-                                onMouseEnter={() => this.handleMouseEnter(index, itemIndex)}
-                                onMouseLeave={() => this.handleMouseLeave(index, itemIndex)}
-                              >
-                                <a
-                                  href={link.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="navigation-link"
-                                >
-                                  {link.name}
-                                </a>
+                        {link.name}
+                      </a>
 
-                                <span
-                                  className={`delete-icon ${this.state.hoveredItems[index] && this.state.hoveredItems[index][itemIndex] ? 'visible' : ''}`}
-                                  onClick={() => this.handleRemoveLink(index, itemIndex)}
-                                >
-                                  <FaTimes />
-                                </span>
-                              </li>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </ul>
-                    )}
-                  </Droppable>
-                </DragDropContext>
+                      <span
+                        className={`delete-icon ${this.state.hoveredItems[index] && this.state.hoveredItems[index][itemIndex] ? 'visible' : ''}`}
+                        onClick={() => this.handleRemoveLink(index, itemIndex)}
+                      >
+                        <FaTimes />
+                      </span>
+                    </li>
+                  ))}
+                </ul>
                 <div className="add-item" onClick={this.handleAddClick}>
                   <FaPlus />
                 </div>
