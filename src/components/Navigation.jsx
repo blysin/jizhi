@@ -184,7 +184,7 @@ class Navigation extends Component {
                 onClick={() => this.setState({ activeColumnIndex: index })}
               >
                 <div className="header">
-                  <div className="title" onDoubleClick={() => this.handleTitleDoubleClick(index)}>
+                  <div className="header-title" onDoubleClick={() => this.handleTitleDoubleClick(index)}>
                     {(this.state.isEditingTitle && this.state.editingColumnIndex === index) ? (
                       <input
                         type="text"
