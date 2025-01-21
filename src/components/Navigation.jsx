@@ -141,7 +141,13 @@ class Navigation extends Component {
   }
 
   componentWillUnmount() {
+    // 清理所有定时器
     Object.values(this.hoverTimers).forEach((timer) => clearTimeout(timer));
+    this.hoverTimers = {};
+    
+    // 释放DOM引用
+    this.titleInputRef.current = null;
+    this.nameInputRef.current = null;
   }
 
   handleMouseEnter = (columnIndex, itemIndex) => {

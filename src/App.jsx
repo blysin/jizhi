@@ -111,6 +111,16 @@ class App extends Component {
     }
   }
 
+  componentWillUnmount() {
+    // 清理p5实例
+    if (this.p5Instance) {
+      this.p5Instance.remove();
+    }
+    
+    // 移除事件监听器
+    window.removeEventListener('keydown', this.handleKeyDown);
+  }
+
   handlePlayPauseSelect = () => this.setState((state) => ({ isPlaying: !state.isPlaying }));
 
   handleShowSearchBarChange = () => {
