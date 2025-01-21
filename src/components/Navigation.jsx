@@ -3,132 +3,275 @@ import './Navigation.css';
 import { FaTimes, FaPlus } from 'react-icons/fa';
 import PropTypes from 'prop-types';
 import Storager from '../utils/storager';
+import { Dialog, TextInput, Button, Pane } from 'evergreen-ui';
 
 class Navigation extends Component {
   constructor(props) {
     super(props);
     this.state = {
       showEditMode: false,
-      hoveredItem: null,
+      hoveredItems: {}, // { columnIndex: { itemIndex: true } }
       isEditingTitle: false,
-      currentTitle: '自定义标题',
+      editingColumnIndex: null,
+      isDialogOpen: false,
+      newLinkName: '',
+      newLinkUrl: '',
+      columns: [
+        {
+          title: '默认列',
+          links: this.props.links || []
+        }
+      ],
+      activeColumnIndex: 0
     };
     this.hoverTimers = {};
     this.titleInputRef = React.createRef();
+    this.nameInputRef = React.createRef();
   }
 
+  handleAddClick = () => {
+    this.setState({ isDialogOpen: true });
+  };
+
+  handleAddColumn = () => {
+    const newColumns = [...this.state.columns];
+    newColumns.push({
+      title: `新列 ${newColumns.length + 1}`,
+      links: []
+    });
+    this.setState({ columns: newColumns, activeColumnIndex: newColumns.length - 1 });
+  };
+
+  handleDialogClose = () => {
+    this.setState({
+      isDialogOpen: false,
+      newLinkName: '',
+      newLinkUrl: '',
+    });
+  };
+
+  handleAddLink = () => {
+    const { newLinkName, newLinkUrl, activeColumnIndex, columns } = this.state;
+    if (!newLinkName || !newLinkUrl) return;
+
+    const newColumns = [...columns];
+    newColumns[activeColumnIndex].links = [
+      ...newColumns[activeColumnIndex].links,
+      { name: newLinkName, url: newLinkUrl }
+    ];
+    
+    this.setState(prevState => ({
+      columns: newColumns,
+      hoveredItems: {
+        ...prevState.hoveredItems,
+        [activeColumnIndex]: {
+          ...prevState.hoveredItems[activeColumnIndex],
+          [newColumns[activeColumnIndex].links.length - 1]: false
+        }
+      }
+    }));
+    Storager.set({ navigationColumns: newColumns });
+    this.props.onLinksChange && this.props.onLinksChange(newColumns);
+    this.handleDialogClose();
+  };
+
   componentDidMount() {
-    Storager.get(['navigationTitle'], (result) => {
-      if (result && result.navigationTitle) {
-        console.log('componentDidMount ', result.navigationTitle);
-        this.setState({ currentTitle: result.navigationTitle });
-      } else {
-        console.log('componentDidMount 获取到空数据', result);
+    Storager.get(['navigationColumns'], (result) => {
+      if (result && result.navigationColumns) {
+        this.setState({
+          columns: result.navigationColumns,
+          currentTitle: (result.navigationColumns[0] && result.navigationColumns[0].title) || '默认列'
+        });
+      } else if (this.props.links) {
+        this.setState({
+          columns: [{
+            title: '默认列',
+            links: this.props.links
+          }]
+        });
       }
     });
   }
 
   componentWillUnmount() {
-    // 清除所有定时器
     Object.values(this.hoverTimers).forEach((timer) => clearTimeout(timer));
   }
 
-  handleMouseEnter = (index) => {
-    this.hoverTimers[index] = setTimeout(() => {
-      this.setState({ hoveredItem: index });
+  handleMouseEnter = (columnIndex, itemIndex) => {
+    const timerKey = `${columnIndex}-${itemIndex}`;
+    this.hoverTimers[timerKey] = setTimeout(() => {
+      this.setState(prevState => ({
+        hoveredItems: {
+          ...prevState.hoveredItems,
+          [columnIndex]: {
+            ...prevState.hoveredItems[columnIndex],
+            [itemIndex]: true
+          }
+        }
+      }));
     }, 1000);
   };
 
-  handleMouseLeave = (index) => {
-    clearTimeout(this.hoverTimers[index]);
-    this.hoverTimers[index] = setTimeout(() => {
-      this.setState({ hoveredItem: null });
+  handleMouseLeave = (columnIndex, itemIndex) => {
+    const timerKey = `${columnIndex}-${itemIndex}`;
+    clearTimeout(this.hoverTimers[timerKey]);
+    this.hoverTimers[timerKey] = setTimeout(() => {
+      this.setState(prevState => ({
+        hoveredItems: {
+          ...prevState.hoveredItems,
+          [columnIndex]: {
+            ...prevState.hoveredItems[columnIndex],
+            [itemIndex]: false
+          }
+        }
+      }));
     }, 1000);
   };
 
-  handleRemoveLink = (index) => {
-    const newLinks = [...this.props.links];
-    newLinks.splice(index, 1);
-    this.props.setLinks(newLinks);
-    Storager.set({ links: newLinks });
-    this.props.onLinksChange && this.props.onLinksChange(newLinks);
+  handleRemoveLink = (columnIndex, itemIndex) => {
+    const { columns } = this.state;
+    const newColumns = [...columns];
+    newColumns[columnIndex].links.splice(itemIndex, 1);
+    
+    this.setState({ columns: newColumns });
+    Storager.set({ navigationColumns: newColumns });
+    this.props.onLinksChange && this.props.onLinksChange(newColumns);
   };
 
-  handleTitleDoubleClick = () => {
-    this.setState({ isEditingTitle: true }, () => {
+  handleTitleDoubleClick = (index) => {
+    this.setState({ 
+      isEditingTitle: true,
+      editingColumnIndex: index 
+    }, () => {
       this.titleInputRef.current.focus();
     });
   };
 
   handleTitleChange = (e) => {
-    this.setState({ currentTitle: e.target.value });
+    const { columns, editingColumnIndex } = this.state;
+    const newColumns = [...columns];
+    newColumns[editingColumnIndex].title = e.target.value;
+    this.setState({ columns: newColumns });
   };
 
   handleTitleBlur = () => {
-    console.log('handleTitleBlur', this.state.currentTitle);
-    this.setState({ isEditingTitle: false });
-    Storager.set({ navigationTitle: this.state.currentTitle });
+    const { columns } = this.state;
+    this.setState({ 
+      isEditingTitle: false,
+      editingColumnIndex: null 
+    });
+    Storager.set({ navigationColumns: columns });
   };
 
   handleTitleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      handleTitleBlur();
+      this.handleTitleBlur();
     }
   };
 
   render() {
-    const { links } = this.props;
     const { isDarkMode } = this.props;
+    const { columns, activeColumnIndex } = this.state;
 
     return (
       <>
         <div className={`navigation ${isDarkMode ? 'dark' : ''}`}>
-          <div class="link-row">
-            <div className="title" onDoubleClick={this.handleTitleDoubleClick}>
-              {this.state.isEditingTitle ? (
-                <input
-                  type="text"
-                  ref={this.titleInputRef}
-                  className="title-input"
-                  value={this.state.currentTitle}
-                  onChange={this.handleTitleChange}
-                  onBlur={this.handleTitleBlur}
-                  onKeyDown={this.handleTitleKeyDown}
-                />
-              ) : (
-                this.state.currentTitle
-              )}
-            </div>
-            <ul className="navigation-list">
-              {links.map((link, index) => (
-                <li
-                  key={index}
-                  className="navigation-item"
-                  onMouseEnter={() => this.handleMouseEnter(index)}
-                  onMouseLeave={() => this.handleMouseLeave(index)}
-                >
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="navigation-link"
-                  >
-                    {link.name}
-                  </a>
+          <div className="columns-container">
+            {columns.map((column, index) => (
+              <div 
+                key={index}
+                className={`link-row ${index === activeColumnIndex ? 'active' : ''}`}
+                onClick={() => this.setState({ activeColumnIndex: index })}
+              >
+                <div className="header">
+                  <div className="title" onDoubleClick={() => this.handleTitleDoubleClick(index)}>
+                    {(this.state.isEditingTitle && this.state.editingColumnIndex === index) ? (
+                      <input
+                        type="text"
+                        ref={this.titleInputRef}
+                        className="title-input"
+                        value={columns[index].title}
+                        onChange={this.handleTitleChange}
+                        onBlur={this.handleTitleBlur}
+                        onKeyDown={this.handleTitleKeyDown}
+                      />
+                    ) : (
+                      columns[index].title
+                    )}
+                  </div>
+                  <div className="operation">
+                    <FaPlus 
+                      className="add-link-row-btn" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        this.handleAddColumn();
+                      }}
+                    />
+                  </div>
+                </div>
+                <ul className="navigation-list">
+                  {column.links.map((link, itemIndex) => (
+                    <li
+                      key={itemIndex}
+                      className="navigation-item"
+                      onMouseEnter={() => this.handleMouseEnter(index, itemIndex)}
+                      onMouseLeave={() => this.handleMouseLeave(index, itemIndex)}
+                    >
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="navigation-link"
+                      >
+                        {link.name}
+                      </a>
 
-                  <span
-                    className={`delete-icon ${this.state.hoveredItem === index ? 'visible' : ''}`}
-                    onClick={() => this.handleRemoveLink(index)}
-                  >
-                    <FaTimes />
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <div className="add-item" >              
-              <FaPlus />
-            </div>
+                      <span
+                        className={`delete-icon ${this.state.hoveredItems[index] && this.state.hoveredItems[index][itemIndex] ? 'visible' : ''}`}
+                        onClick={() => this.handleRemoveLink(index, itemIndex)}
+                      >
+                        <FaTimes />
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="add-item" onClick={this.handleAddClick}>
+                  <FaPlus />
+                </div>
+              </div>
+            ))}
           </div>
+
+          <Dialog
+            isShown={this.state.isDialogOpen}
+            title="添加导航链接"
+            onCloseComplete={this.handleDialogClose}
+            confirmLabel="添加"
+            cancelLabel="取消"
+            onConfirm={this.handleAddLink}
+            width={400}
+          >
+            <Pane display="flex" flexDirection="column" gap={4} padding={8}>
+              <TextInput
+                name="name"
+                value={this.state.newLinkName}
+                onChange={(e) => this.setState({ newLinkName: e.target.value })}
+                placeholder="网站名称"
+                width="100%"
+                height={32}
+                autoFocus
+              />
+              <TextInput
+                name="url"
+                value={this.state.newLinkUrl}
+                onChange={(e) => this.setState({ newLinkUrl: e.target.value })}
+                placeholder="网站地址"
+                type="url"
+                width="100%"
+                height={32}
+              />
+            </Pane>
+          </Dialog>
         </div>
       </>
     );
@@ -136,8 +279,9 @@ class Navigation extends Component {
 }
 
 Navigation.propTypes = {
-  links: PropTypes.array.isRequired,
   isDarkMode: PropTypes.bool.isRequired,
+  setLinks: PropTypes.func,
+  onLinksChange: PropTypes.func
 };
 
 export default Navigation;

@@ -31,8 +31,6 @@ const NavigationTabContent = ({ onLinksChange }) => {
   return (
     <>
       <Menu.Group title="行列配置">
-        <Menu.Option>行列配置</Menu.Option>
-        <Menu.Option>行列配置</Menu.Option>
 
       </Menu.Group>
       <Menu.Divider />
