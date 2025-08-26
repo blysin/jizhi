@@ -116,7 +116,7 @@ class App extends Component {
     if (this.p5Instance) {
       this.p5Instance.remove();
     }
-    
+
     // 移除事件监听器
     window.removeEventListener('keydown', this.handleKeyDown);
   }
@@ -323,7 +323,6 @@ class App extends Component {
             isDarkMode={isDarkMode}
           />
         )}
-        
       </div>
     ) : null;
   }

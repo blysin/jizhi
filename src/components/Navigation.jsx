@@ -3,54 +3,55 @@ import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-ho
 import './Navigation.css';
 import { FaTimes, FaPlus } from 'react-icons/fa';
 import PropTypes from 'prop-types';
+import { Dialog, TextInput, Pane } from 'evergreen-ui';
 import Storager from '../utils/storager';
-import { Dialog, TextInput, Button, Pane } from 'evergreen-ui';
 
 // 可拖拽的列表项
-const SortableItem = SortableElement(({value, columnIndex, itemIndex, onMouseEnter, onMouseLeave, hoveredItems, onRemoveLink}) => (
-  <li
-    className="navigation-item"
-    onMouseEnter={() => onMouseEnter(columnIndex, itemIndex)}
-    onMouseLeave={() => onMouseLeave(columnIndex, itemIndex)}
-  >
-    <a
-      href={value.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="navigation-link"
+const SortableItem = SortableElement(
+  ({ value, columnIndex, itemIndex, onMouseEnter, onMouseLeave, hoveredItems, onRemoveLink }) => (
+    <li
+      className="navigation-item"
+      onMouseEnter={() => onMouseEnter(columnIndex, itemIndex)}
+      onMouseLeave={() => onMouseLeave(columnIndex, itemIndex)}
     >
-      {value.name}
-    </a>
+      <a href={value.url} target="_blank" rel="noopener noreferrer" className="navigation-link">
+        {value.name}
+      </a>
 
-    <span
-      className={`delete-icon ${hoveredItems[columnIndex] && hoveredItems[columnIndex][itemIndex] ? 'visible' : ''}`}
-      onClick={() => onRemoveLink(columnIndex, itemIndex)}
-    >
-      <FaTimes />
-    </span>
-  </li>
-));
+      <span
+        className={`delete-icon ${
+          hoveredItems[columnIndex] && hoveredItems[columnIndex][itemIndex] ? 'visible' : ''
+        }`}
+        onClick={() => onRemoveLink(columnIndex, itemIndex)}
+      >
+        <FaTimes />
+      </span>
+    </li>
+  )
+);
 
 // 可拖拽的列表容器
-const SortableList = SortableContainer(({items, columnIndex, onMouseEnter, onMouseLeave, hoveredItems, onRemoveLink}) => {
-  return (
-    <ul className="navigation-list">
-      {items.map((value, index) => (
-        <SortableItem
-          key={`item-${index}`}
-          index={index}
-          value={value}
-          columnIndex={columnIndex}
-          itemIndex={index}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
-          hoveredItems={hoveredItems}
-          onRemoveLink={onRemoveLink}
-        />
-      ))}
-    </ul>
-  );
-});
+const SortableList = SortableContainer(
+  ({ items, columnIndex, onMouseEnter, onMouseLeave, hoveredItems, onRemoveLink }) => {
+    return (
+      <ul className="navigation-list">
+        {items.map((value, index) => (
+          <SortableItem
+            key={`item-${index}`}
+            index={index}
+            value={value}
+            columnIndex={columnIndex}
+            itemIndex={index}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            hoveredItems={hoveredItems}
+            onRemoveLink={onRemoveLink}
+          />
+        ))}
+      </ul>
+    );
+  }
+);
 
 class Navigation extends Component {
   constructor(props) {
@@ -66,10 +67,10 @@ class Navigation extends Component {
       columns: [
         {
           title: '默认列',
-          links: this.props.links || []
-        }
+          links: this.props.links || [],
+        },
       ],
-      activeColumnIndex: 0
+      activeColumnIndex: 0,
     };
     this.hoverTimers = {};
     this.titleInputRef = React.createRef();
@@ -84,7 +85,7 @@ class Navigation extends Component {
     const newColumns = [...this.state.columns];
     newColumns.push({
       title: `新列 ${newColumns.length + 1}`,
-      links: []
+      links: [],
     });
     this.setState({ columns: newColumns, activeColumnIndex: newColumns.length - 1 });
   };
@@ -104,18 +105,18 @@ class Navigation extends Component {
     const newColumns = [...columns];
     newColumns[activeColumnIndex].links = [
       ...newColumns[activeColumnIndex].links,
-      { name: newLinkName, url: newLinkUrl }
+      { name: newLinkName, url: newLinkUrl },
     ];
-    
-    this.setState(prevState => ({
+
+    this.setState((prevState) => ({
       columns: newColumns,
       hoveredItems: {
         ...prevState.hoveredItems,
         [activeColumnIndex]: {
           ...prevState.hoveredItems[activeColumnIndex],
-          [newColumns[activeColumnIndex].links.length - 1]: false
-        }
-      }
+          [newColumns[activeColumnIndex].links.length - 1]: false,
+        },
+      },
     }));
     Storager.set({ navigationColumns: newColumns });
     this.props.onLinksChange && this.props.onLinksChange(newColumns);
@@ -127,14 +128,17 @@ class Navigation extends Component {
       if (result && result.navigationColumns) {
         this.setState({
           columns: result.navigationColumns,
-          currentTitle: (result.navigationColumns[0] && result.navigationColumns[0].title) || '默认列'
+          currentTitle:
+            (result.navigationColumns[0] && result.navigationColumns[0].title) || '默认列',
         });
       } else if (this.props.links) {
         this.setState({
-          columns: [{
-            title: '默认列',
-            links: this.props.links
-          }]
+          columns: [
+            {
+              title: '默认列',
+              links: this.props.links,
+            },
+          ],
         });
       }
     });
@@ -144,7 +148,7 @@ class Navigation extends Component {
     // 清理所有定时器
     Object.values(this.hoverTimers).forEach((timer) => clearTimeout(timer));
     this.hoverTimers = {};
-    
+
     // 释放DOM引用
     this.titleInputRef.current = null;
     this.nameInputRef.current = null;
@@ -153,14 +157,14 @@ class Navigation extends Component {
   handleMouseEnter = (columnIndex, itemIndex) => {
     const timerKey = `${columnIndex}-${itemIndex}`;
     this.hoverTimers[timerKey] = setTimeout(() => {
-      this.setState(prevState => ({
+      this.setState((prevState) => ({
         hoveredItems: {
           ...prevState.hoveredItems,
           [columnIndex]: {
             ...prevState.hoveredItems[columnIndex],
-            [itemIndex]: true
-          }
-        }
+            [itemIndex]: true,
+          },
+        },
       }));
     }, 1000);
   };
@@ -169,14 +173,14 @@ class Navigation extends Component {
     const timerKey = `${columnIndex}-${itemIndex}`;
     clearTimeout(this.hoverTimers[timerKey]);
     this.hoverTimers[timerKey] = setTimeout(() => {
-      this.setState(prevState => ({
+      this.setState((prevState) => ({
         hoveredItems: {
           ...prevState.hoveredItems,
           [columnIndex]: {
             ...prevState.hoveredItems[columnIndex],
-            [itemIndex]: false
-          }
-        }
+            [itemIndex]: false,
+          },
+        },
       }));
     }, 1000);
   };
@@ -185,31 +189,35 @@ class Navigation extends Component {
     const { columns } = this.state;
     const newColumns = [...columns];
     newColumns[columnIndex].links.splice(itemIndex, 1);
-    
+
     // 如果删除后当前列的links为空，则删除整个列
     if (newColumns[columnIndex].links.length === 0) {
       newColumns.splice(columnIndex, 1);
       // 如果删除了当前激活的列，将activeColumnIndex设置为0
-      const newActiveColumnIndex = columnIndex === this.state.activeColumnIndex ? 0 : this.state.activeColumnIndex;
+      const newActiveColumnIndex =
+        columnIndex === this.state.activeColumnIndex ? 0 : this.state.activeColumnIndex;
       this.setState({
         columns: newColumns,
-        activeColumnIndex: newActiveColumnIndex
+        activeColumnIndex: newActiveColumnIndex,
       });
     } else {
       this.setState({ columns: newColumns });
     }
-    
+
     Storager.set({ navigationColumns: newColumns });
     this.props.onLinksChange && this.props.onLinksChange(newColumns);
   };
 
   handleTitleDoubleClick = (index) => {
-    this.setState({ 
-      isEditingTitle: true,
-      editingColumnIndex: index 
-    }, () => {
-      this.titleInputRef.current.focus();
-    });
+    this.setState(
+      {
+        isEditingTitle: true,
+        editingColumnIndex: index,
+      },
+      () => {
+        this.titleInputRef.current.focus();
+      }
+    );
   };
 
   handleTitleChange = (e) => {
@@ -221,9 +229,9 @@ class Navigation extends Component {
 
   handleTitleBlur = () => {
     const { columns } = this.state;
-    this.setState({ 
+    this.setState({
       isEditingTitle: false,
-      editingColumnIndex: null 
+      editingColumnIndex: null,
     });
     Storager.set({ navigationColumns: columns });
   };
@@ -234,16 +242,12 @@ class Navigation extends Component {
     }
   };
 
-  onSortEnd = ({oldIndex, newIndex}, {columnIndex}) => {
+  onSortEnd = ({ oldIndex, newIndex }, { columnIndex }) => {
     const { columns } = this.state;
     const newColumns = [...columns];
-    
+
     // 重新排序当前列的links
-    newColumns[columnIndex].links = arrayMove(
-      columns[columnIndex].links,
-      oldIndex,
-      newIndex
-    );
+    newColumns[columnIndex].links = arrayMove(columns[columnIndex].links, oldIndex, newIndex);
 
     this.setState({ columns: newColumns });
     Storager.set({ navigationColumns: newColumns });
@@ -259,14 +263,17 @@ class Navigation extends Component {
         <div className={`navigation ${isDarkMode ? 'dark' : ''}`}>
           <div className="columns-container">
             {columns.map((column, index) => (
-              <div 
+              <div
                 key={index}
                 className={`link-row ${index === activeColumnIndex ? 'active' : ''}`}
                 onClick={() => this.setState({ activeColumnIndex: index })}
               >
                 <div className="header">
-                  <div className="header-title" onDoubleClick={() => this.handleTitleDoubleClick(index)}>
-                    {(this.state.isEditingTitle && this.state.editingColumnIndex === index) ? (
+                  <div
+                    className="header-title"
+                    onDoubleClick={() => this.handleTitleDoubleClick(index)}
+                  >
+                    {this.state.isEditingTitle && this.state.editingColumnIndex === index ? (
                       <input
                         type="text"
                         ref={this.titleInputRef}
@@ -281,8 +288,8 @@ class Navigation extends Component {
                     )}
                   </div>
                   <div className="operation">
-                    <FaPlus 
-                      className="add-link-row-btn" 
+                    <FaPlus
+                      className="add-link-row-btn"
                       onClick={(e) => {
                         e.stopPropagation();
                         this.handleAddColumn();
@@ -292,7 +299,7 @@ class Navigation extends Component {
                 </div>
                 <SortableList
                   items={column.links}
-                  onSortEnd={(sortInfo) => this.onSortEnd(sortInfo, {columnIndex: index})}
+                  onSortEnd={(sortInfo) => this.onSortEnd(sortInfo, { columnIndex: index })}
                   columnIndex={index}
                   lockAxis="y"
                   distance={5}
@@ -347,7 +354,13 @@ class Navigation extends Component {
 Navigation.propTypes = {
   isDarkMode: PropTypes.bool.isRequired,
   setLinks: PropTypes.func,
-  onLinksChange: PropTypes.func
+  onLinksChange: PropTypes.func,
+  links: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      url: PropTypes.string.isRequired,
+    })
+  ),
 };
 
 export default Navigation;
