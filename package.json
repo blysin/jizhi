@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rimraf builds && webpack --mode production && node build.js",
-    "start": "webpack-dev-server --mode development --open --watch --port=3000",
+    "start": "webpack-dev-server --mode development --open --watch --port=23002",
     "test": "jest",
     "lint": "eslint --cache --format codeframe --ext .mjs,.jsx,.js src",
     "lint:fix": "yarn lint --fix",
@@ -20,9 +20,12 @@
     "lodash": "^4.17.21",
     "prop-types": "^15",
     "react": "^16",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^16",
     "react-hot-loader": "^4",
+    "react-icons": "^5.4.0",
     "react-p5-wrapper": "^3.2.1",
+    "react-sortable-hoc": "^2.0.0",
     "retina-dom-to-image": "^2.5.6",
     "styled-components": "^5.2.1"
   },

@@ -16,6 +16,7 @@ import { WAVES } from '../../constants/appConstants';
 import Legal from './Legal';
 import FontStatement from './FontStatement';
 import SaveBgMenuItem from './SaveBgMenuItem';
+import GroupManager from './GroupManager';
 
 const SwitchWrapper = styled.div`
   display: flex;
@@ -218,6 +219,10 @@ const MenuContent = (props) => {
           </SegmentedControlWrapper>
         </Menu.Group>
       ),
+    },
+    {
+      tabName: '导航分组',
+      tabContent: <GroupManager />,
     },
     { tabName: '关于', tabContent: <Legal waveColor={waveColor} selected={selected} /> },
   ];

@@ -1,0 +1,85 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 12px;
+    background-color: #f9f9f9;
+    width: 240px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+select,
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.separator {
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+    margin: 2px 0;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+}
+
+.separator:first-of-type {
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+    margin-top: 0;
+}
+
+.separator:not(:first-of-type) {
+    border-top: none;
+    padding-top: 0;
+}
+
+.action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: #007aff;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.2s ease-in-out;
+    margin-top: 5px;
+}
+
+.action-button:hover {
+    background-color: #005ecb;
+}
+
+#status-message {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #333;
+    text-align: center;
+    min-height: 15px;
+}

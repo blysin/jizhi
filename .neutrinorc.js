@@ -25,6 +25,7 @@ module.exports = {
           extends: ['eslint:recommended', 'plugin:react/recommended', 'prettier', 'prettier/react'],
           globals: {
             process: true,
+            chrome: 'readonly',
           },
           overrides: [],
           parser: require.resolve('babel-eslint'),
@@ -56,6 +57,18 @@ module.exports = {
         {
           from: 'src/static',
           to: 'static',
+        },
+        {
+          from: 'src/popup.html',
+          to: 'popup.html',
+        },
+        {
+          from: 'src/popup.js',
+          to: 'popup.js',
+        },
+        {
+          from: 'src/popup.css',
+          to: 'popup.css',
         },
       ],
     }),

@@ -8,6 +8,7 @@ import Verses from './components/Verses';
 import ConfigMenu from './components/ConfigMenu';
 import SearchInput from './components/SearchInput';
 import ColorName from './components/ColorName';
+import Navigation from './components/Navigation';
 import { saveBackground, insertFont, fetchAndSetFont, pickColor, isDarkModeEnabled } from './utils';
 import Storager from './utils/storager';
 import { load } from './utils/jinrishici';
@@ -42,6 +43,7 @@ class App extends Component {
       focused: false,
       fontName: DEFAULT_FONT,
       waveColor: pickColor(false),
+      links: [],
     };
   }
 
@@ -73,6 +75,7 @@ class App extends Component {
         'fontName',
         'fonts',
         'colorMode',
+        'links',
       ],
       (res) => {
         if (res.fonts && res.fontName === res.fonts.fontName) {
@@ -92,6 +95,7 @@ class App extends Component {
           fontName: res.fontName || DEFAULT_FONT,
           isDarkMode: res.colorMode === 'os' ? isDarkModeEnabled() : res.colorMode === 'dark',
           waveColor: pickColor(!!this.state.isDarkMode),
+          links: res.links || [],
         });
       }
     );
@@ -105,6 +109,16 @@ class App extends Component {
         waveColor: pickColor(this.state.isDarkMode),
       }));
     }
+  }
+
+  componentWillUnmount() {
+    // 清理p5实例
+    if (this.p5Instance) {
+      this.p5Instance.remove();
+    }
+
+    // 移除事件监听器
+    window.removeEventListener('keydown', this.handleKeyDown);
   }
 
   handlePlayPauseSelect = () => this.setState((state) => ({ isPlaying: !state.isPlaying }));
@@ -200,6 +214,10 @@ class App extends Component {
   handleEngineOptionChange = (engineOption) =>
     this.setState({ engineOption }, () => Storager.set({ engineOption }));
 
+  handleLinksChange = (links) => {
+    this.setState({ links }, () => Storager.set({ links }));
+  };
+
   handleChange = ({ target: { value } }) => this.setState({ value });
 
   handleFocus = () => this.setState({ focused: true });
@@ -224,12 +242,19 @@ class App extends Component {
       waveColor,
       isFontLoading,
       colorMode,
+      links,
     } = this.state;
     const sketches = { blobs, waves };
 
     return selected ? (
       <div className="App" tabIndex="-1" onKeyDown={this.handleKeyDown}>
         <GlobalStyle />
+        <Navigation
+          isDarkMode={isDarkMode}
+          links={links}
+          setLinks={this.handleLinksChange}
+          onLinksChange={this.handleLinksChange}
+        />
         {selected === WAVES && (
           <ColorName
             key={waveColor.name}
@@ -277,6 +302,7 @@ class App extends Component {
           onFontTypeChange={this.handleFontTypeChange}
           isFontLoading={isFontLoading}
           waveColor={waveColor}
+          onLinksChange={this.handleLinksChange}
         >
           {errMessage && (
             <div style={{ height: 30 }}>
