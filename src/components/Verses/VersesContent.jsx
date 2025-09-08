@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon } from 'evergreen-ui';
+import { BiSearch } from 'react-icons/bi';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
 import { pureWords } from '../../utils';
@@ -9,7 +9,7 @@ const Content = styled.div`
   width: 80vw;
   word-break: keep-all;
   ${(props) =>
-    props.isVertical &&
+    props.$isVertical &&
     css`
       width: auto;
       line-height: 1.35;
@@ -23,7 +23,7 @@ const Origin = styled.div`
   justify-content: center;
   align-items: center;
   ${(props) =>
-    props.isVertical &&
+    props.$isVertical &&
     css`
       margin: 0;
       margin-right: 10px;
@@ -41,7 +41,7 @@ const Stamp = styled.span`
   font-size: 67%;
   letter-spacing: -1px;
   ${(props) =>
-    props.isVertical &&
+    props.$isVertical &&
     css`
       padding: 3px 2px 4px;
     `};
@@ -70,14 +70,14 @@ const VersesContent = (props) => {
 
   return (
     <>
-      <Content isVertical={isVertical}>{filteredContent}</Content>
-      <Origin isVertical={isVertical}>
+      <Content $isVertical={isVertical}>{filteredContent}</Content>
+      <Origin $isVertical={isVertical}>
         <a href={searchLink} target="_blank" rel="noopener noreferrer">
           <span className="title">{`「${title}」`}</span>
         </a>
-        <Stamp isVertical={isVertical}>{author}</Stamp>
+        <Stamp $isVertical={isVertical}>{author}</Stamp>
         <Search>
-          <Icon size={14} icon="search-text" color="black" />
+          <BiSearch size={14} color="black" />
         </Search>
       </Origin>
     </>

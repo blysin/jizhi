@@ -15,17 +15,17 @@ const fadeOut = keyframes`
 `;
 
 const Wrapper = styled.div`
-  font-family: ${(props) => props.fontName};
+  font-family: ${(props) => props.$fontName};
   position: absolute;
   font-size: calc(100px + 5vw);
   right: 0;
   top: 0;
-  color: ${(props) => (props.isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)')};
+  color: ${(props) => (props.$isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)')};
   writing-mode: vertical-rl;
   white-space: nowrap;
   transform: translate(10%, -5%);
   ${(props) =>
-    props.colorStayChecked
+    props.$colorStayChecked
       ? css`
           opacity: 1;
         `
@@ -37,7 +37,7 @@ const Wrapper = styled.div`
 
 const ColorName = ({ colorName, colorStayChecked, fontName, isDarkMode }) => {
   return (
-    <Wrapper fontName={fontName} colorStayChecked={colorStayChecked} isDarkMode={isDarkMode}>
+    <Wrapper $fontName={fontName} $colorStayChecked={colorStayChecked} $isDarkMode={isDarkMode}>
       {colorName}
     </Wrapper>
   );

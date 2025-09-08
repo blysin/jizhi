@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { hot } from 'react-hot-loader';
 import { ReactP5Wrapper } from 'react-p5-wrapper';
 import { InlineAlert } from 'evergreen-ui';
 import waves from './sketchs/waves';
@@ -21,8 +20,7 @@ import {
   DEFAULT_FONT,
 } from './constants/appConstants';
 import GlobalStyle from './components/GlobalStyle';
-
-const DEFAULT_SHICI_LIST = require('./constants/shici.json');
+import DEFAULT_SHICI_LIST from './constants/shici.json';
 
 class App extends Component {
   constructor(props) {
@@ -328,4 +326,4 @@ class App extends Component {
   }
 }
 
-export default hot(module)(App);
+export default App;

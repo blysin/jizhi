@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>几枝 - 新标签页</title>
+    <meta name="description" content="支持自定义新标签页的浏览器扩展，几枝将在新标签页上展示中国传统色的层叠波浪动画效果搭配经典诗词。">
+    <link rel="icon" type="image/x-icon" href="/jizhi-favicon.ico">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        /* 防止闪烁的加载样式 */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 18px;
+        }
+    </style>
+  <script type="module" crossorigin src="/assets/main-GA15sXLt.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-BoYpCxoE.css">
+</head>
+<body>
+    <div id="root">
+        <div class="loading">几枝加载中...</div>
+    </div>
+</body>
+</html>

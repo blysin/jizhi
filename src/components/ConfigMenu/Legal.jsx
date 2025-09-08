@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Paragraph, Avatar, Heading, Pane, HeartIcon } from 'evergreen-ui';
+import { Paragraph, Avatar, Heading, Pane } from 'evergreen-ui';
+import { BiHeart } from 'react-icons/bi';
 import styled, { keyframes } from 'styled-components';
 import { WAVES, JIZHI_LINKS } from '../../constants/appConstants';
 import { version } from '../../../package.json';
@@ -12,7 +13,7 @@ const pulse = keyframes`
   }
 `;
 
-const HeartPulse = styled(HeartIcon)`
+const HeartPulse = styled(BiHeart)`
   animation: ${pulse} 1.2s infinite;
 `;
 

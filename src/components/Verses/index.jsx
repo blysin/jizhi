@@ -14,16 +14,16 @@ const fadeIn = keyframes`
 `;
 
 const VersesWrapper = styled.div`
-  color: ${(props) => (props.isDarkMode ? '#fff' : '#111')};
-  font-family: ${(props) => props.fontName};
-  top: ${(props) => (props.isWaves ? '30vh' : '45vh')};
+  color: ${(props) => (props.$isDarkMode ? '#fff' : '#111')};
+  font-family: ${(props) => props.$fontName};
+  top: ${(props) => (props.$isWaves ? '30vh' : '45vh')};
   position: absolute;
   transform: translate(-50%, -50%);
   left: 50vw;
   text-align: center;
   opacity: 0.8;
   ${(props) =>
-    props.isVerticalVerses
+    props.$isVerticalVerses
       ? css`
           text-align: left;
           top: 40vh;
@@ -42,10 +42,10 @@ const Verses = (props) => {
 
   return (
     <VersesWrapper
-      isVerticalVerses={isVerticalVerses}
-      isDarkMode={isDarkMode}
-      fontName={fontName}
-      isWaves={bgOption === WAVES}
+      $isVerticalVerses={isVerticalVerses}
+      $isDarkMode={isDarkMode}
+      $fontName={fontName}
+      $isWaves={bgOption === WAVES}
     >
       <VersesContent verses={verses} engineOption={engineOption} isVertical={isVerticalVerses} />
     </VersesWrapper>

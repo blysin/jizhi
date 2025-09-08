@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Pane,
   Menu,
-  Tablist,
   Switch,
-  SidebarTab,
-  SegmentedControl,
+  Group,
+  Button,
   Spinner,
   Text,
   InlineAlert,
@@ -25,6 +23,74 @@ const SwitchWrapper = styled.div`
 
 const SegmentedControlWrapper = styled.div`
   margin-left: 16px;
+`;
+
+// 自定义分段控件样式
+const CustomSegmentedControl = ({ options, value, onChange, width }) => (
+  <Group display="flex" width={width}>
+    {options.map((option) => (
+      <Button
+        key={option.value}
+        isActive={value === option.value}
+        onClick={() => onChange(option.value)}
+        flex={1}
+        size="small"
+        appearance={value === option.value ? "primary" : "default"}
+        justifyContent="center"
+      >
+        {option.label}
+      </Button>
+    ))}
+  </Group>
+);
+
+// 替代 Pane 组件的自定义实现
+const CustomPane = styled.div`
+  ${props => props.$display && `display: ${props.$display};`}
+  ${props => props.$height && `height: ${props.$height}px;`}
+  ${props => props.$width && `width: ${props.$width}px;`}
+  ${props => props.$marginBottom && `margin-bottom: ${props.$marginBottom}px;`}
+  ${props => props.$marginTop && `margin-top: ${props.$marginTop}px;`}
+  ${props => props.$margin && `margin: ${props.$margin}px;`}
+  ${props => props.$background && `background-color: ${props.$background === 'tint1' ? '#f9f9fb' : props.$background};`}
+  ${props => props.$role && `/* role handled by HTML attribute */`}
+  ${props => props.$ariaLabelledby && `/* aria-labelledby handled by HTML attribute */`}
+  ${props => props.$ariaHidden && `/* aria-hidden handled by HTML attribute */`}
+`;
+
+// 替代 Tablist 组件的自定义实现
+const CustomTablist = styled.div`
+  width: ${props => props.$width ? `${props.$width}px` : 'auto'};
+  margin: ${props => props.$margin ? `${props.$margin}px` : '0'};
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #e4e7eb;
+`;
+
+// 替代 SidebarTab 组件的自定义实现
+const CustomSidebarTab = styled.button`
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: none;
+  background: ${props => props.$isSelected ? '#f7fafc' : 'transparent'};
+  color: ${props => props.$isSelected ? '#234361' : '#66788a'};
+  font-size: 14px;
+  font-weight: ${props => props.$isSelected ? '500' : '400'};
+  text-align: left;
+  cursor: pointer;
+  transition: all 120ms ease-in-out;
+  border-left: ${props => props.$isSelected ? '2px solid #3366ff' : '2px solid transparent'};
+  
+  &:hover {
+    background: #f7fafc;
+    color: #234361;
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #3366ff33;
+  }
 `;
 
 const MenuContent = (props) => {
@@ -141,7 +207,7 @@ const MenuContent = (props) => {
 
           <Menu.Group title="搜索引擎">
             <SegmentedControlWrapper>
-              <SegmentedControl
+              <CustomSegmentedControl
                 width={280}
                 options={engineOptions}
                 value={engineOption}
@@ -166,7 +232,7 @@ const MenuContent = (props) => {
           <Menu.Divider />
           <Menu.Group title="颜色模式">
             <SegmentedControlWrapper>
-              <SegmentedControl
+              <CustomSegmentedControl
                 width={280}
                 options={colorModeOptions}
                 value={colorMode}
@@ -202,17 +268,23 @@ const MenuContent = (props) => {
       tabContent: (
         <Menu.Group title="选择字体">
           <SegmentedControlWrapper>
-            <SegmentedControl
+            <CustomSegmentedControl
               width={280}
               options={fontOptions}
               value={fontName}
               onChange={onFontTypeChange}
             />
             {isFontLoading ? (
-              <Pane height={30} width={280} marginBottom={-10} marginTop={10} display="flex">
+              <CustomPane 
+                $height={30} 
+                $width={280} 
+                $marginBottom={-10} 
+                $marginTop={10} 
+                $display="flex"
+              >
                 <Spinner size={20} marginRight={5} />
                 <Text>远程加载中……</Text>
-              </Pane>
+              </CustomPane>
             ) : (
               <FontStatement fontName={fontName} />
             )}
@@ -228,35 +300,37 @@ const MenuContent = (props) => {
   ];
 
   return (
-    <Pane display="flex" height={300}>
-      <Tablist width={80} margin={10}>
+    <CustomPane $display="flex" $height={300}>
+      <CustomTablist $width={80} $margin={10}>
         {tabs.map(({ tabName }, index) => (
-          <SidebarTab
+          <CustomSidebarTab
             key={tabName}
             id={tabName}
-            onSelect={() => setSelectedIndex(index)}
-            isSelected={index === selectedIndex}
+            onClick={() => setSelectedIndex(index)}
+            $isSelected={index === selectedIndex}
             aria-controls={`panel-${tabName}`}
+            role="tab"
+            aria-selected={index === selectedIndex}
           >
             {tabName}
-          </SidebarTab>
+          </CustomSidebarTab>
         ))}
-      </Tablist>
-      <Pane width={350} background="tint1">
+      </CustomTablist>
+      <CustomPane $width={350} $background="tint1">
         {tabs.map(({ tabName, tabContent }, index) => (
-          <Pane
+          <CustomPane
             key={tabName}
             id={`panel-${tabName}`}
             role="tabpanel"
             aria-labelledby={tabName}
             aria-hidden={index !== selectedIndex}
-            display={index === selectedIndex ? 'block' : 'none'}
+            $display={index === selectedIndex ? 'block' : 'none'}
           >
             {tabContent}
-          </Pane>
+          </CustomPane>
         ))}
-      </Pane>
-    </Pane>
+      </CustomPane>
+    </CustomPane>
   );
 };
 
