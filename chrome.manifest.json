@@ -6,8 +6,18 @@
   "background": {
     "service_worker": "background.js"
   },
+  "icons": {
+    "16": "src/static/icons/jizhi-16.png",
+    "48": "src/static/icons/jizhi-32.png",
+    "128": "src/static/icons/jizhi-128.png"
+  },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "src/static/icons/jizhi-16.png",
+      "48": "src/static/icons/jizhi-32.png",
+      "128": "src/static/icons/jizhi-128.png"
+    }
   },
   "chrome_url_overrides": {
     "newtab": "index.html"

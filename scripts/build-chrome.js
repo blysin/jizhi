@@ -93,6 +93,60 @@ async function copyExtensionFiles() {
       console.log(chalk.green(`  ✅ ${fileName} copied`))
     }
   })
+  
+  // 复制静态图标文件
+  const srcStaticDir = 'src/static'
+  const srcIconsDir = resolve(srcStaticDir, 'icons')
+  
+  if (fs.existsSync(srcIconsDir)) {
+    const iconsDestDir = resolve(distDir, 'src', 'static', 'icons')
+    
+    // 创建目标目录
+    if (!fs.existsSync(iconsDestDir)) {
+      fs.mkdirSync(iconsDestDir, { recursive: true })
+    }
+    
+    // 复制图标文件
+    const iconFiles = fs.readdirSync(srcIconsDir)
+    iconFiles.forEach(file => {
+      if (file.endsWith('.png') || file.endsWith('.svg') || file.endsWith('.ico')) {
+        const src = resolve(srcIconsDir, file)
+        const dest = resolve(iconsDestDir, file)
+        fs.copyFileSync(src, dest)
+        console.log(chalk.green(`  ✅ src/static/icons/${file} copied`))
+      }
+    })
+    console.log(chalk.green('  ✅ Source static icons copied'))
+  } else {
+    console.warn(chalk.yellow('  ⚠️  src/static/icons directory not found'))
+  }
+  
+  // 复制原有的静态图标文件（如果存在）
+  const staticDir = 'static'
+  const iconsDir = resolve(staticDir, 'icons')
+  
+  if (fs.existsSync(iconsDir)) {
+    const iconsDestDir = resolve(distDir, 'icons')
+    
+    // 创建目标目录
+    if (!fs.existsSync(iconsDestDir)) {
+      fs.mkdirSync(iconsDestDir, { recursive: true })
+    }
+    
+    // 复制图标文件
+    const iconFiles = fs.readdirSync(iconsDir)
+    iconFiles.forEach(file => {
+      if (file.endsWith('.png') || file.endsWith('.svg') || file.endsWith('.ico')) {
+        const src = resolve(iconsDir, file)
+        const dest = resolve(iconsDestDir, file)
+        fs.copyFileSync(src, dest)
+        console.log(chalk.green(`  ✅ icons/${file} copied`))
+      }
+    })
+    console.log(chalk.green('  ✅ Static icons copied'))
+  } else {
+    console.warn(chalk.yellow('  ⚠️  static/icons directory not found'))
+  }
 }
 
 async function createChromeZip() {

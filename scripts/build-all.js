@@ -88,6 +88,28 @@ async function copyExtensionFiles(browser, buildDir) {
     copyDirectorySync(staticSrc, staticDest)
     console.log(chalk.yellow(`📁 Copied static directory`))
   }
+  
+  // 复制src/static/icons目录中的PNG图标文件
+  const srcStaticIconsSrc = resolve(rootDir, 'src', 'static', 'icons')
+  const srcStaticIconsDest = resolve(buildDir, 'src', 'static', 'icons')
+  if (fs.existsSync(srcStaticIconsSrc)) {
+    // 确保目标目录存在
+    if (!fs.existsSync(srcStaticIconsDest)) {
+      fs.mkdirSync(srcStaticIconsDest, { recursive: true })
+    }
+    
+    // 复制PNG图标文件
+    const iconFiles = fs.readdirSync(srcStaticIconsSrc)
+    iconFiles.forEach(file => {
+      if (file.endsWith('.png') || file.endsWith('.svg') || file.endsWith('.ico')) {
+        const srcFile = resolve(srcStaticIconsSrc, file)
+        const destFile = resolve(srcStaticIconsDest, file)
+        fs.copyFileSync(srcFile, destFile)
+        console.log(chalk.yellow(`🖼️ Copied src/static/icons/${file}`))
+      }
+    })
+    console.log(chalk.yellow(`📁 Copied src/static/icons directory`))
+  }
 }
 
 // 递归复制目录的辅助函数

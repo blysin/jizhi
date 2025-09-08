@@ -147,7 +147,14 @@ export default class WavesRenderer extends BaseRenderer {
   generateMountains() {
     this.mountains = [];
     const { width, height } = this.getCanvasSize();
-    const baseColor = new Color(this.options.waveColor);
+    
+    // 处理颜色：支持字符串格式和 wavesColors.json 对象格式
+    let colorValue = this.options.waveColor;
+    if (typeof colorValue === 'object' && colorValue.hex) {
+      // 如果是来自 wavesColors.json 的颜色对象，使用其 hex 值
+      colorValue = colorValue.hex;
+    }
+    const baseColor = new Color(colorValue);
 
     // 创建5层波浪，完全复制原版逻辑
     for (let i = 0; i < this.mountainCount; i++) {
@@ -203,9 +210,24 @@ export default class WavesRenderer extends BaseRenderer {
       this.bgColor = newProps.isDarkMode ? '#323232' : '#e6e6e6';
     }
 
-    // 更新波浪颜色
-    if (newProps.waveColor !== undefined && newProps.waveColor !== this.options.waveColor) {
-      shouldRegenerateMountains = true;
+    // 更新波浪颜色（支持字符串和对象格式）
+    if (newProps.waveColor !== undefined) {
+      // 获取新颜色的字符串值
+      let newColorValue = newProps.waveColor;
+      if (typeof newColorValue === 'object' && newColorValue.hex) {
+        newColorValue = newColorValue.hex;
+      }
+      
+      // 获取当前颜色的字符串值
+      let currentColorValue = this.options.waveColor;
+      if (typeof currentColorValue === 'object' && currentColorValue.hex) {
+        currentColorValue = currentColorValue.hex;
+      }
+      
+      // 比较颜色值是否有变化
+      if (newColorValue !== currentColorValue) {
+        shouldRegenerateMountains = true;
+      }
     }
 
     // 如果需要重新生成山形，则重新生成
