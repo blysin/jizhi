@@ -1,25 +1,4 @@
-// Using the same storage mechanism as the main app
-const storager = {
-  set: (obj, callback) => {
-    const key = Object.keys(obj)[0];
-    const value = JSON.stringify(obj);
-    localStorage.setItem(key, value);
-    if (callback) callback();
-  },
-  get: (keys, callback) => {
-    let resOutput = {};
-    keys.forEach((key) => {
-      let result = localStorage.getItem(key);
-      try {
-        result = JSON.parse(result) || {};
-      } catch (e) {
-        result = {};
-      }
-      resOutput = { ...resOutput, ...result };
-    });
-    if (callback) callback(resOutput);
-  },
-};
+const Storager = chrome.storage.local;
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('add-to-nav-form');
@@ -32,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Initialization ---
 
   // 1. Populate group dropdown
-  storager.get(['navigationColumns'], (result) => {
+  Storager.get(['navigationColumns'], (result) => {
     const columns = result.navigationColumns;
     if (columns && Array.isArray(columns) && columns.length > 0) {
       columns.forEach((column, index) => {
@@ -78,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    storager.get(['navigationColumns'], (result) => {
+    Storager.get(['navigationColumns'], (result) => {
       let columns = result.navigationColumns;
       if (!columns || !Array.isArray(columns)) {
         columns = [];
@@ -103,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      storager.set({ navigationColumns: columns }, () => {
+      Storager.set({ navigationColumns: columns }, () => {
         statusMessage.textContent = '添加成功！';
         setTimeout(() => window.close(), 1000);
       });

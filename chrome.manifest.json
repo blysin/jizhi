@@ -2,9 +2,7 @@
   "name": "几枝",
   "version": "2.5.2",
   "description": "支持自定义新标签页的 Chrome 扩展，几枝将在新标签页上展示中国传统色的层叠波浪动画效果搭配经典诗词。",
-  "permissions": [
-    "tabs"
-  ],
+  "permissions": ["tabs", "storage"],
   "background": {
     "service_worker": "background.js"
   },
@@ -29,5 +27,13 @@
   "manifest_version": 3,
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Q"
+      },
+      "description": "快速打开几枝弹窗"
+    }
   }
 }
