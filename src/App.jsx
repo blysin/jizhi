@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import { ReactP5Wrapper } from 'react-p5-wrapper';
 import { InlineAlert } from 'evergreen-ui';
-import waves from './sketchs/waves';
-import blobs from './sketchs/blobs';
+import CanvasAnimation from './components/CanvasAnimation';
 import Verses from './components/Verses';
 import ConfigMenu from './components/ConfigMenu';
 import SearchInput from './components/SearchInput';
@@ -15,6 +13,7 @@ import {
   HORIZONTAL,
   VERTICAL,
   WAVES,
+  BLOBS,
   GOOGLE_SEARCH,
   DEFAULT_SHICI,
   DEFAULT_FONT,
@@ -110,11 +109,6 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    // 清理p5实例
-    if (this.p5Instance) {
-      this.p5Instance.remove();
-    }
-
     // 移除事件监听器
     window.removeEventListener('keydown', this.handleKeyDown);
   }
@@ -223,26 +217,7 @@ class App extends Component {
   handleBlur = () => this.setState({ focused: false });
 
   render() {
-    const {
-      verses,
-      isVerticalVerses,
-      isPlaying,
-      showSearchBarChecked,
-      defaultPlayChecked,
-      colorStayChecked,
-      selected,
-      errMessage,
-      engineOption,
-      value,
-      focused,
-      fontName,
-      isDarkMode,
-      waveColor,
-      isFontLoading,
-      colorMode,
-      links,
-    } = this.state;
-    const sketches = { blobs, waves };
+    const { verses, isVerticalVerses, isPlaying, showSearchBarChecked, defaultPlayChecked, colorStayChecked, selected, errMessage, engineOption, value, focused, fontName, isDarkMode, waveColor, isFontLoading, colorMode, links } = this.state;
 
     return selected ? (
       <div className="App" tabIndex="-1" onKeyDown={this.handleKeyDown}>
@@ -271,8 +246,8 @@ class App extends Component {
           isDarkMode={isDarkMode}
           fontName={fontName}
         />
-        <ReactP5Wrapper
-          sketch={sketches[selected]}
+        <CanvasAnimation
+          animationType={selected}
           isPlaying={isPlaying}
           isDarkMode={isDarkMode}
           waveColor={waveColor.hex}

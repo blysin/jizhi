@@ -14,15 +14,24 @@ const browsers = ['chrome', 'firefox']
 async function buildForBrowser(browser) {
   console.log(chalk.blue(`🚀 Building for ${browser}...`))
   
+  const buildDir = `builds/build_${browser}`
+  
   // 设置环境变量
   process.env.TARGET_BROWSER = browser
   
   try {
-    // 使用Vite构建
+    // 使用Vite构建到临时目录
     await build({
       configFile: resolve(__dirname, '../vite.config.js'),
-      mode: 'production'
+      mode: 'production',
+      build: {
+        outDir: buildDir,
+        emptyOutDir: true
+      }
     })
+    
+    // 复制扩展相关文件
+    await copyExtensionFiles(browser, buildDir)
     
     console.log(chalk.green(`✅ ${browser} build completed`))
     
@@ -35,9 +44,85 @@ async function buildForBrowser(browser) {
   }
 }
 
+async function copyExtensionFiles(browser, buildDir) {
+  const rootDir = resolve(__dirname, '..')
+  
+  // 确保构建目录存在
+  if (!fs.existsSync(buildDir)) {
+    fs.mkdirSync(buildDir, { recursive: true })
+  }
+  
+  // 复制manifest文件
+  const manifestSrc = resolve(rootDir, `${browser}.manifest.json`)
+  const manifestDest = resolve(buildDir, 'manifest.json')
+  if (fs.existsSync(manifestSrc)) {
+    fs.copyFileSync(manifestSrc, manifestDest)
+    console.log(chalk.yellow(`📋 Copied ${browser}.manifest.json`))
+  }
+  
+  // 复制background脚本
+  const backgroundSrc = resolve(rootDir, `${browser}.background.js`)
+  const backgroundDest = resolve(buildDir, 'background.js')
+  if (fs.existsSync(backgroundSrc)) {
+    fs.copyFileSync(backgroundSrc, backgroundDest)
+    console.log(chalk.yellow(`🔧 Copied ${browser}.background.js`))
+  }
+  
+  // 复制popup相关文件
+  const popupFiles = ['popup.html', 'popup.css', 'popup.js']
+  const srcDir = resolve(rootDir, 'src')
+  
+  for (const file of popupFiles) {
+    const srcFile = resolve(srcDir, file)
+    const destFile = resolve(buildDir, file)
+    if (fs.existsSync(srcFile)) {
+      fs.copyFileSync(srcFile, destFile)
+      console.log(chalk.yellow(`📄 Copied ${file}`))
+    }
+  }
+  
+  // 复制static目录（包含图标等静态资源）
+  const staticSrc = resolve(rootDir, 'static')
+  const staticDest = resolve(buildDir, 'static')
+  if (fs.existsSync(staticSrc)) {
+    copyDirectorySync(staticSrc, staticDest)
+    console.log(chalk.yellow(`📁 Copied static directory`))
+  }
+}
+
+// 递归复制目录的辅助函数
+function copyDirectorySync(src, dest) {
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true })
+  }
+  
+  const entries = fs.readdirSync(src, { withFileTypes: true })
+  
+  for (const entry of entries) {
+    const srcPath = resolve(src, entry.name)
+    const destPath = resolve(dest, entry.name)
+    
+    if (entry.isDirectory()) {
+      copyDirectorySync(srcPath, destPath)
+    } else {
+      fs.copyFileSync(srcPath, destPath)
+    }
+  }
+}
+
 async function createZip(browser) {
   const buildDir = `builds/build_${browser}`
   const zipPath = `builds/${browser}-extension.zip`
+  
+  // 检查构建目录是否存在且不为空
+  if (!fs.existsSync(buildDir)) {
+    throw new Error(`Build directory ${buildDir} does not exist`)
+  }
+  
+  const files = fs.readdirSync(buildDir)
+  if (files.length === 0) {
+    throw new Error(`Build directory ${buildDir} is empty`)
+  }
   
   return new Promise((resolve, reject) => {
     const output = fs.createWriteStream(zipPath)

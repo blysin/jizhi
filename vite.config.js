@@ -4,6 +4,7 @@ import { resolve } from 'path'
 
 export default defineConfig(({ mode }) => {
   const isDev = mode === 'development'
+  const isBrowserExtension = process.env.TARGET_BROWSER
   
   return {
     plugins: [
@@ -17,9 +18,16 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       sourcemap: isDev,
       minify: !isDev,
+      // 为浏览器扩展优化构建配置
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'index.html')
+        },
+        output: {
+          // 避免使用eval相关的代码分割
+          manualChunks: undefined,
+          // 确保生成的代码符合CSP要求
+          format: 'es'
         }
       }
     },
@@ -52,8 +60,12 @@ export default defineConfig(({ mode }) => {
         'react-dom',
         'styled-components',
         'lodash',
-        'axios'
-      ]
+        'axios',
+        'p5',
+        'react-p5-wrapper'
+      ],
+      // 确保p5.js正确预构建
+      force: true
     }
   }
 })

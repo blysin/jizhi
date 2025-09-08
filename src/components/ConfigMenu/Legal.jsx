@@ -15,6 +15,7 @@ const pulse = keyframes`
 
 const HeartPulse = styled(BiHeart)`
   animation: ${pulse} 1.2s infinite;
+  margin-right: ${props => props.$marginRight || 0}px;
 `;
 
 const LegalWrapper = styled.div`
@@ -53,7 +54,7 @@ const Legal = ({ waveColor, selected }) => {
         <CustomLink url={JIZHI_LINKS.issues.link} name={JIZHI_LINKS.issues.name} />
       </Paragraph>
       <Paragraph size={400} marginTop="default">
-        <HeartPulse color="#e25555" size={14} marginRight={5} />
+        <HeartPulse color="#e25555" size={14} $marginRight={5} />
         感谢您的支持和喜爱
       </Paragraph>
     </LegalWrapper>

@@ -1,15 +1,51 @@
 import React, { Component } from 'react';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import './Navigation.css';
 import { FaTimes, FaPlus } from 'react-icons/fa';
 import PropTypes from 'prop-types';
 import { Dialog, TextInput, Pane } from 'evergreen-ui';
 import Storager from '../utils/storager';
 
-// 可拖拽的列表项
-const SortableItem = SortableElement(
-  ({ value, columnIndex, itemIndex, onMouseEnter, onMouseLeave, hoveredItems, onRemoveLink }) => (
+// 可拖拽的列表项组件
+function SortableItem({ id, value, columnIndex, itemIndex, onMouseEnter, onMouseLeave, hoveredItems, onRemoveLink }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
     <li
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       className="navigation-item"
       onMouseEnter={() => onMouseEnter(columnIndex, itemIndex)}
       onMouseLeave={() => onMouseLeave(columnIndex, itemIndex)}
@@ -27,31 +63,62 @@ const SortableItem = SortableElement(
         <FaTimes />
       </span>
     </li>
-  )
-);
+  );
+}
 
-// 可拖拽的列表容器
-const SortableList = SortableContainer(
-  ({ items, columnIndex, onMouseEnter, onMouseLeave, hoveredItems, onRemoveLink }) => {
-    return (
-      <ul className="navigation-list">
-        {items.map((value, index) => (
-          <SortableItem
-            key={`item-${index}`}
-            index={index}
-            value={value}
-            columnIndex={columnIndex}
-            itemIndex={index}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
-            hoveredItems={hoveredItems}
-            onRemoveLink={onRemoveLink}
-          />
-        ))}
-      </ul>
-    );
+// 可拖拽的列表容器组件
+function SortableList({ items, columnIndex, onMouseEnter, onMouseLeave, hoveredItems, onRemoveLink, onSortEnd }) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  function handleDragEnd(event) {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = items.findIndex((item, index) => `${columnIndex}-${index}` === active.id);
+      const newIndex = items.findIndex((item, index) => `${columnIndex}-${index}` === over.id);
+      
+      onSortEnd({ oldIndex, newIndex }, { columnIndex });
+    }
   }
-);
+
+  return (
+    <DndContext 
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext 
+        items={items.map((_, index) => `${columnIndex}-${index}`)}
+        strategy={verticalListSortingStrategy}
+      >
+        <ul className="navigation-list">
+          {items.map((value, index) => (
+            <SortableItem
+              key={`${columnIndex}-${index}`}
+              id={`${columnIndex}-${index}`}
+              value={value}
+              columnIndex={columnIndex}
+              itemIndex={index}
+              onMouseEnter={onMouseEnter}
+              onMouseLeave={onMouseLeave}
+              hoveredItems={hoveredItems}
+              onRemoveLink={onRemoveLink}
+            />
+          ))}
+        </ul>
+      </SortableContext>
+    </DndContext>
+  );
+}
 
 class Navigation extends Component {
   constructor(props) {
@@ -299,14 +366,12 @@ class Navigation extends Component {
                 </div>
                 <SortableList
                   items={column.links}
-                  onSortEnd={(sortInfo) => this.onSortEnd(sortInfo, { columnIndex: index })}
                   columnIndex={index}
-                  lockAxis="y"
-                  distance={5}
                   onMouseEnter={this.handleMouseEnter}
                   onMouseLeave={this.handleMouseLeave}
                   hoveredItems={this.state.hoveredItems}
                   onRemoveLink={this.handleRemoveLink}
+                  onSortEnd={this.onSortEnd}
                 />
                 <div className="add-item" onClick={this.handleAddClick}>
                   <FaPlus />
